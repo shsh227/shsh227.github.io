@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Goodnews up to date</title>
+  </head>
+  <body>
+    <h3>Current goodnews</h3>
+    <div>
+      {% for article in articles %}
+        <p>{{ article.title }}</p>
+        <a href="{{article.url}}">URL</a>
+        <p>{{ article.date }}</p>
+      {% endfor %}
+    </div>
+  </body>
+</html>

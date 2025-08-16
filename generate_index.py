@@ -14,7 +14,10 @@ conn.close()
 
 articles = []
 for row in rows:
-    article = {"title": row[0], "url": row[1], "date": row[2]}
+    article = {"title": row[0],
+                    "url": row[1],
+                    "img": row[2],
+                    "date": row[3]}
     articles.append(article)
 
 # Render html

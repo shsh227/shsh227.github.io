@@ -8,7 +8,7 @@ template = env.get_template("index.html")
 # Load data from database
 conn = sqlite3.connect('goodnews.db')
 cursor = conn.cursor()
-cursor.execute('SELECT * FROM news ORDER BY date DESC LIMIT 5')
+cursor.execute("SELECT title, url, img, date FROM news ORDER BY date DESC LIMIT 10")
 rows = cursor.fetchall()
 conn.close()
 

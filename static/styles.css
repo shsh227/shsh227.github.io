@@ -22,6 +22,9 @@ html {
     font-size: 25px;
     font-weight: bold;
     padding: 10px;
+    width: 450px;
+    text-align: center;
+    margin: 0 auto;
 }
 
 .url {

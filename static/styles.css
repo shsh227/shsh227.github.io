@@ -1,0 +1,9 @@
+h1, h2 {
+    color: darkblue;
+    font-size: 24px;
+}
+
+.date {
+    font-size: 14px;
+    color: gray;
+}

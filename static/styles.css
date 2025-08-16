@@ -1,9 +1,15 @@
-h1, h2 {
-    color: darkblue;
-    font-size: 24px;
+.date {
+    font-size: 35px;
 }
 
-.date {
-    font-size: 14px;
-    color: gray;
+.distance {
+    padding: 20px;
+}
+
+p {
+    list-style-type: none;
+}
+
+a {
+    text-decoration: none;
 }

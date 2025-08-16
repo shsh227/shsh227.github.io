@@ -43,24 +43,43 @@ def scrape_and_store():
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, url TEXT NOT NULL, date TEXT NOT NULL)")
+    cursor.execute("DELETE FROM news")
 
     # Fill database
     for article in articles:
-        title = article.find("h3", class_="entry-title")
-        url = article.find("a")["href"]
-        raw_time = article.find("h4", class_="entry-subtitle").text.strip()
-        
-        find_number = re.search(r'\d', raw_time)
-        if find_number is None:
-            only_raw_time = raw_time
+        title_tag = article.find("h3", class_="entry-title")
+        if title_tag:
+            title = title_tag.find("a").text.strip()
         else:
-            only_raw_time = raw_time[find_number.start():].strip()
+            title = None
+
+        link_tag = article.find("h3", class_="entry-title").find("a")
+        if link_tag and link_tag["href"]:
+            url = link_tag["href"]
+        else:
+            url = None
+
+        date_tag = article.find("h4", class_="entry-subtitle")
+        if date_tag:
+            raw_time = date_tag.get_text(strip=True)
+            find_number = re.search(r'\d', raw_time)
+            if find_number is None:
+                only_raw_time = raw_time
+            else:
+                only_raw_time = raw_time[find_number.start():].strip()
+        else:
+            only_raw_time = None 
+
+        if only_raw_time:
+            time = datetime.datetime.strptime(only_raw_time, "%d %B %Y").date()
+        else:
+            time = None
         
-        time = datetime.datetime.strptime(only_raw_time, "%d %B %Y").date()
-        
-        if weekstart <= time <= today:
-            cursor.execute("INSERT INTO news (title, url, date) VALUES (?, ?, ?)", (title.text.strip(), url,  str(time)))
-            conn.commit()
+        if title and url and time:
+            if weekstart <= time <= today:
+                cursor.execute("INSERT INTO news (title, url, date) VALUES (?, ?, ?)", (title, url,  str(time)))
+                
+    conn.commit()
 
             
     # Close database    

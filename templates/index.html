@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Goodnews up to date</title>
-  </head>
-  <body>
-    <h3>Current goodnews</h3>
-    <div>
-      {% for article in articles %}
-        <p>{{ article.title }}</p>
-        <a href="{{article.url}}">URL</a>
-        <p>{{ article.date }}</p>
-      {% endfor %}
-    </div>
-  </body>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link href="static/styles.css" rel="stylesheet">
+        <title>Good News of the Week</title>
+    </head>
+    <body>
+        <div style = "background-color: lightblue; text-align: center;">
+            <h1>Good News of the Week</h1>
+            <hr>
+        </div>
+        <div class  = "news">
+            {% for article in articles %}
+                <p class = "date">{{ article.date }}</p>
+                <p>{{ article.title }}. Want to know <a href = "{{ article.url }}">more</a>?</p>
+            {% else %}
+                <p>No news found for this week.</p>
+            {% endfor %}
+        </div>
+    </body>
 </html>

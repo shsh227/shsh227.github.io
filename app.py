@@ -1,10 +1,10 @@
 import sqlite3
-from flask import render_template, Flask, jsonify
+from flask import render_template, Flask
 
 app = Flask(__name__)
 
-@app.route("/api/news")
-def news_api():
+@app.route("/")
+def news_scanner():
     conn = sqlite3.connect("goodnews.db")
     cursor = conn.cursor()
     cursor.execute("SELECT title, url,  date FROM news ORDER BY date DESC LIMIT 5")
@@ -16,7 +16,7 @@ def news_api():
                     "date": row[2]}
         articles.append(article)
     conn.close()
-    return jsonify(articles)
+    return render_template("index.html", articles = articles)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)

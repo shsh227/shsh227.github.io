@@ -1,5 +1,32 @@
+html {
+    border: 75px solid lightblue;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
 .date {
-    font-size: 35px;
+    font-size: 15px;
+    padding: 10px;
+}
+
+.img {
+    padding: 10px;
+    width: 450px;
+}
+
+.title {
+    font-size: 25px;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.url {
+    font-size: 20px;
+    padding: 10px;
 }
 
 .distance {

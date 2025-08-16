@@ -37,12 +37,13 @@ def scrape_and_store():
     # Set the date variables
     today = datetime.date.today()
     weekstart = today - datetime.timedelta(days=today.weekday())
+    monthstart = today.replace(day=1)
 
     # Create database
     db = "goodnews.db"
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, url TEXT NOT NULL, date TEXT NOT NULL)")
+    cursor.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, url TEXT NOT NULL, img TEXT NOT NULL, date TEXT NOT NULL)")
     cursor.execute("DELETE FROM news")
 
     # Fill database
@@ -50,14 +51,23 @@ def scrape_and_store():
         title_tag = article.find("h3", class_="entry-title")
         if title_tag:
             title = title_tag.find("a").text.strip()
+            print(f"Title: {title}")
         else:
             title = None
 
         link_tag = article.find("h3", class_="entry-title").find("a")
         if link_tag and link_tag["href"]:
             url = link_tag["href"]
+            print(f"URL: {url}")
         else:
             url = None
+
+        img_tag = article.find("div", class_="entry-thumb")
+        if img_tag:
+            img = img_tag.find("img")["src"]
+            print(f"Image: {img}")
+        else:
+            img = None
 
         date_tag = article.find("h4", class_="entry-subtitle")
         if date_tag:
@@ -67,6 +77,7 @@ def scrape_and_store():
                 only_raw_time = raw_time
             else:
                 only_raw_time = raw_time[find_number.start():].strip()
+            print(f"Date: {only_raw_time}")
         else:
             only_raw_time = None 
 
@@ -75,13 +86,18 @@ def scrape_and_store():
         else:
             time = None
         
-        if title and url and time:
-            if weekstart <= time <= today:
-                cursor.execute("INSERT INTO news (title, url, date) VALUES (?, ?, ?)", (title, url,  str(time)))
+        if title and url and time and img:
+            if monthstart <= time <= today:
+                cursor.execute("INSERT INTO news (title, url, img, date) VALUES (?, ?, ?, ?)", (title, url, img, str(time)))
                 
     conn.commit()
 
-            
+    print("Database storage:")
+    stored = cursor.execute("SELECT * FROM news")
+    rows = stored.fetchall()
+    for row in rows:
+        print(row)
+    
     # Close database    
     conn.close()
     driver.quit()

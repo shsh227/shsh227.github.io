@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <link href="/static/styles.css" rel="stylesheet">
-        <title>Good News of the Week</title>
-    </head>
-    <body>
-        <div style = "background-color: lightblue; text-align: center;">
-            <h1 style = "color: white" class = "distance">Good News of the Week</h1>
-            <hr>
-        </div>
-        <div class  = "news">
-            {% for article in articles %}
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/styles.css" rel="stylesheet">
+    <title>Good News of this Month</title>
+</head>
+<body>
+    <div style = "background-color: rgb(75, 117, 255); text-align: center;">
+        <h1 style = "color: white" class = "distance">Good News of this Month</h1>
+        <hr>
+    </div>
+    <div class  = "news">
+        {% for article in articles %}
+            <div class = "article {{ article.id }}">
                 <p class = "date">{{ article.date }}</p>
-                <p>{{ article.title }}. Want to know <a href = "{{ article.url }}">more</a>?</p>
-            {% else %}
-                <p>No news found for this week.</p>
-            {% endfor %}
-        </div>
-    </body>
+                <img class = "img" src="{{ article.img }}" alt="News Image">
+                <p class = "title">{{ article.title }}</p>
+                <p class = "url">Want to know <a href = "{{ article.url }}">more</a>?</p>
+                <hr>
+            </div>
+        {% else %}
+            <p>No news found for this month.</p>
+        {% endfor %}
+    </div>
+</body>
 </html>

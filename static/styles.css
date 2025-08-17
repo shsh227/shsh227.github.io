@@ -141,39 +141,35 @@ footer {
     width: 90% !important;
     max-width: 90% !important;
     margin: 30px auto 0 auto !important;
-    padding: 20px !important; 
+    padding: 20px !important;
     box-sizing: border-box !important;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 
-  .article .article-box .img {
-    max-width: 100vw !important;
-    max-height: 40vh !important;
+  .text {
+    width: 100% !important;
+    box-sizing: border-box;
   }
 
-  .article .article-box .title {
-    font-size: 1.5rem !important;
+  .article .article-box .title,
+  .article .article-box .summary {
+    width: 100% !important;
+    text-align: center;
+    word-break: break-word;
   }
 
   .article .article-box .summary {
     font-size: 1rem !important;
   }
 
-  #logo {
-    width: 200px !important;
-    height: 60px !important;
+  .article .article-box .title {
+    font-size: 1.5rem !important;
   }
 
-  #top {
-    display: none !important;
-  }
-
-  footer {
-    padding: 10px !important;
-    font-size: 0.9rem !important;
-  }
-
-  .slideshow {
-    min-height: 100vh !important;
-    overflow-y: auto !important;
+  .article .article-box .img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
   }
 }

@@ -43,31 +43,17 @@ def scrape_and_store():
     db = "goodnews.db"
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, url TEXT NOT NULL, img TEXT NOT NULL, date TEXT NOT NULL)")
+    cursor.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, summary TEXT NOT NULL, img TEXT NOT NULL, date TEXT NOT NULL)")
     cursor.execute("DELETE FROM news")
 
     # Fill database
     for article in articles:
-        title_tag = article.find("h3", class_="entry-title")
-        if title_tag:
-            title = title_tag.find("a").text.strip()
-            print(f"Title: {title}")
-        else:
-            title = None
-
         link_tag = article.find("h3", class_="entry-title").find("a")
         if link_tag and link_tag["href"]:
             url = link_tag["href"]
             print(f"URL: {url}")
         else:
             url = None
-
-        img_tag = article.find("div", class_="entry-thumb")
-        if img_tag:
-            img = img_tag.find("img")["src"]
-            print(f"Image: {img}")
-        else:
-            img = None
 
         date_tag = article.find("h4", class_="entry-subtitle")
         if date_tag:
@@ -86,9 +72,42 @@ def scrape_and_store():
         else:
             time = None
         
-        if title and url and time and img:
-            if monthstart <= time <= today:
-                cursor.execute("INSERT INTO news (title, url, img, date) VALUES (?, ?, ?, ?)", (title, url, img, str(time)))
+        if weekstart <= time <= today:
+            driver.get(url)
+
+            WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "main-wrap")))
+            article_html = driver.page_source
+            article_content = BeautifulSoup(article_html, "html.parser")
+            content_sections = article_content.find_all("article", class_="news_post")
+            for content_section in content_sections:
+                # Find title
+                content_title_tag = content_section.find("h3", class_="news_post_title")
+                if content_title_tag:
+                    content_title = content_title_tag.get_text(strip=True)
+                else:
+                    content_title = None
+
+                # Find image
+                content_img_tag = content_section.find("div", class_="news_post_photo")
+                if content_img_tag:
+                    style = content_img_tag["style"]
+                    img_url = re.search(r'url\((.*?)\)', style)
+                    if img_url:
+                        content_img = img_url.group(1)
+                        if content_img.startswith("//"):
+                            content_img = "https:" + content_img
+                else:
+                    content_img = None
+
+                # Find summary
+                content_summary_tag = content_section.find("p", class_="summary")
+                if content_summary_tag:
+                    content_summary = content_summary_tag.get_text(strip=True)
+                else:
+                    content_summary = None
+
+                if content_title and content_summary and content_img and time:
+                    cursor.execute("INSERT INTO news (title, summary, img, date) VALUES (?, ?, ?, ?)", (content_title, content_summary, content_img, str(time)))
                 
     conn.commit()
 

@@ -8,14 +8,14 @@ template = env.get_template("index.html")
 # Load data from database
 conn = sqlite3.connect('goodnews.db')
 cursor = conn.cursor()
-cursor.execute("SELECT title, url, img, date FROM news ORDER BY date DESC LIMIT 10")
+cursor.execute("SELECT title, summary, img, date FROM news ORDER BY date DESC LIMIT 10")
 rows = cursor.fetchall()
 conn.close()
 
 articles = []
 for row in rows:
     article = {"title": row[0],
-                    "url": row[1],
+                    "summary": row[1],
                     "img": row[2],
                     "date": row[3]}
     articles.append(article)

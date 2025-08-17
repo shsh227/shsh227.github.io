@@ -4,6 +4,7 @@ html, body {
     margin: 0;
     padding: 0;
     background-color: lightblue;
+    overflow: hidden;
 }
 
 #fullscreen,
@@ -14,6 +15,8 @@ html, body {
     padding: 10px 20px;
     background-color: rgb(75, 117, 255);
     z-index: 1000;
+    color: white;
+    border: none;
 }
 
 #exitfullscreen {
@@ -53,20 +56,20 @@ html, body {
     flex-direction: row;
     align-items: flex-start;
     width: 80vw;
-    max-width: 80%;
+    max-width: 80vw;
     height: auto;
-    max-height: calc(100vh - 40px);
+    max-height: 80vh;
     margin: 0 auto;
     gap: 20px;
     padding: 20px;
     background: white;
-    overflow:  auto;
 }
 
 .news {
     display: flex;
     justify-content: center;
-    padding-top: 20px;
+    height: 100vh;
+    align-items: center;
 }
 
 .text {
@@ -74,13 +77,12 @@ html, body {
     flex-direction: column;
     justify-content: center;
     margin: auto 0;
-    overflow: auto;
 }
 
 .article .article-box .img {
     width: 100%;
     max-width: 50vw;
-    max-height: 40vh;
+    max-height: 60vh;
     object-fit: cover;
     object-position: center;
 }

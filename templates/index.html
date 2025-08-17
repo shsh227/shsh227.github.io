@@ -4,6 +4,35 @@
     <meta charset="UTF-8">
     <link href="/static/styles.css" rel="stylesheet">
     <title>Good News of the Month</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+                const articles = document.querySelectorAll('.article');
+                
+                let startingIndex = 0;
+                
+                function showarticle(index) {
+                    articles.forEach(article => {
+                        article.classList.remove('active');
+                    });
+
+                    articles[index].classList.add('active');
+                }
+
+                function shownextarticle() {
+                    startingIndex++;
+
+                    if (startingIndex >= articles.length) {
+                        startingIndex = 0;
+                    }
+
+                    showarticle(startingIndex);
+                }
+
+                showarticle(startingIndex);
+
+                setInterval(shownextarticle, 7000);
+        })
+    </script>
 </head>
 <body>
     <div style = "background-color: rgb(75, 117, 255); text-align: center;">
@@ -12,7 +41,7 @@
     </div>
     <div class  = "news">
         {% for article in articles %}
-            <div>
+            <div class = "article">
                 <p class = "date">{{ article.date }}</p>
                 <img class = "img" src="{{ article.img }}" alt="News Image">
                 <p class = "title">{{ article.title }}</p>

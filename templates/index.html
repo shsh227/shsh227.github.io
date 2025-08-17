@@ -31,7 +31,36 @@
                 showarticle(startingIndex);
 
                 setInterval(shownextarticle, 7000);
+
+                const fullscreen = document.getElementById("fullscreen");
+                const exitfullscreen = document.getElementById("exitfullscreen");
+
+                fullscreen.addEventListener("click", function() {
+                    document.documentElement.requestFullscreen();
+                    fullscreen.style.display = "none";
+                    exitfullscreen.style.display = "block";
+                })
+
+                exitfullscreen.addEventListener("click", function() {
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                        fullscreen.style.display = "block";
+                        exitfullscreen.style.display = "none";
+                    }
+                })
+
+                document.addEventListener("fullscreenchange", function() {
+                    if (document.fullscreenElement) {
+                        fullscreen.style.display = "none";
+                        exitfullscreen.style.display = "block"; 
+                    }
+                    else {
+                        fullscreen.style.display = "block";
+                        exitfullscreen.style.display = "none";
+                    }
+                })
         })
+
     </script>
 </head>
 <body>
@@ -39,6 +68,8 @@
         <h1 style = "color: white" class = "distance">Good News of this Month</h1>
         <hr>
     </div>
+    <button id = "fullscreen">Full Screen</button>
+    <button id = "exitfullscreen">Exit Full Screen</button>
     <div class  = "news">
         {% for article in articles %}
             <div class = "article">

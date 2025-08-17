@@ -42,10 +42,9 @@
     <div class  = "news">
         {% for article in articles %}
             <div class = "article">
-                <p class = "date">{{ article.date }}</p>
                 <img class = "img" src="{{ article.img }}" alt="News Image">
                 <p class = "title">{{ article.title }}</p>
-                <p class = "summary">{{ article.summary }}</p>
+                <p class = "summary">{{ article.summary }} [{{ article.date }}]</p>
                 <hr>
             </div>
         {% else %}

@@ -34,13 +34,9 @@ html, body {
     z-index: 1;
 }
 
-.article .date {
-    font-size: 15px;
-    padding: 10px;
-}
 
 .article .img {
-    max-width: 60%;
+    max-width: 100%;
     max-height: 50vh;
     object-fit: contain;
 }

@@ -25,7 +25,7 @@ def scrape_and_store():
 
     # Extract news headlines from goodnews
     driver.get("https://goodnews.eu/en/")
-    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, "rp-medium-two")))
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "container")))
     html = driver.page_source
     content = BeautifulSoup(html, "html.parser")
     articles = content.find_all("article", class_="rp-medium-two")

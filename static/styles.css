@@ -5,7 +5,6 @@ html, body {
     padding: 0;
     overflow: hidden;
     background-color: lightblue;
-    
 }
 
 .slideshow {
@@ -15,9 +14,9 @@ html, body {
 }
 
 .article {
-    position: absolute;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    height: 100%;
     padding: 10px;
     box-sizing: border-box;
     display: none;
@@ -30,18 +29,46 @@ html, body {
 .article.active {
     display: flex;
     flex-direction: column;
+    align-items: center;
     opacity: 1;
     z-index: 1;
 }
 
-
-.article .img {
-    max-width: 100%;
-    max-height: 50vh;
-    object-fit: contain;
+.article-box {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 80vw;
+    max-width: 80%;
+    height: auto;
+    margin: 0 auto;
+    gap: 20px;
+    padding: 20px;
+    background: white;
 }
 
-.article .title {
+.news {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+.text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: auto 0;
+}
+
+.article .article-box .img {
+    width: 100%;
+    max-width: 50vw;
+    max-height: 50vw;
+    object-fit: cover;
+    object-position: center;
+}
+
+.article .article-box .title {
     font-size: 25px;
     font-weight: bold;
     padding: 10px;
@@ -49,13 +76,14 @@ html, body {
     margin: 0 auto;
 }
 
-.article .summary {
+.article .article-box .summary {
     font-size: 20px;
     padding: 10px;
 }
 
 p {
     list-style-type: none;
+    margin: 0;
 }
 
 a {
@@ -65,4 +93,32 @@ a {
 .distance {
     margin-top: 0;
     padding-top:  20px;
+}
+
+@media screen and (max-width: 768px) {
+    .article-box {
+        flex-direction: column;         /* Stack image and text vertically */
+        align-items: center;
+        width: 90vw;
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .article .article-box .img {
+        width: 100%;
+        height: auto;                  /* Let image scale naturally */
+        max-height: 60vw;
+    }
+
+    .text {
+        margin: 0;                     /* Reset vertical centering */
+        align-items: center;          /* Optional: center text on small screens */
+        text-align: center;
+    }
+
+    .article .article-box .title,
+    .article .article-box .summary {
+        font-size: 18px;
+        padding: 5px;
+    }
 }

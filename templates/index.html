@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link href="/static/styles.css" rel="stylesheet">
-    <title>Good News of the Month</title>
+    <title>Good News of the Week</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -31,7 +31,7 @@
 
                 showarticle(startingIndex);
 
-                setInterval(shownextarticle, 7000);
+                setInterval(shownextarticle, 10000);
 
                 const fullscreen = document.getElementById("fullscreen");
                 const exitfullscreen = document.getElementById("exitfullscreen");
@@ -66,7 +66,7 @@
 </head>
 <body>
     <div id = "top" style = "background-color: rgb(75, 117, 255); text-align: center; padding: 9px;">
-        <h1 style = "color: white;" class = "distance">This month's daily dosis of optimism</h1>
+        <h1 style = "color: white;" class = "distance">This week's daily dosis of optimism</h1>
     </div>
     <button id = "fullscreen">Full Screen</button>
     <button id = "exitfullscreen">Exit Full Screen</button>

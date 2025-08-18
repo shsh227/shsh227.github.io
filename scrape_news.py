@@ -37,6 +37,7 @@ def scrape_and_store():
     # Set the date variables
     today = datetime.date.today()
     weekstart = today - datetime.timedelta(days=today.weekday())
+    lastweekstart = weekstart - datetime.timedelta(days=7)
     monthstart = today.replace(day=1)
 
     # Create database
@@ -45,6 +46,7 @@ def scrape_and_store():
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, summary TEXT NOT NULL, img TEXT NOT NULL, date TEXT NOT NULL)")
     cursor.execute("DELETE FROM news")
+    
 
     # Fill database
     for article in articles:
@@ -72,7 +74,7 @@ def scrape_and_store():
         else:
             time = None
         
-        if weekstart <= time <= today:
+        if lastweekstart <= time <= today:
             driver.get(url)
 
             WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "main-wrap")))
@@ -108,7 +110,9 @@ def scrape_and_store():
 
                 if content_title and content_summary and content_img and time:
                     cursor.execute("INSERT INTO news (title, summary, img, date) VALUES (?, ?, ?, ?)", (content_title, content_summary, content_img, str(time)))
-                
+                else:
+                    print(f"Skipping incomplete article at {url}")
+
     conn.commit()
 
     print("Database storage:")

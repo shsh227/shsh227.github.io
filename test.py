@@ -1,136 +1,216 @@
-if current_link_tag and time:
-            # Now visit the article page
-            driver.get(current_link_tag)
-            WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.ID, "main-wrap")))
+# Import modules
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from bs4 import BeautifulSoup
+import sqlite3
+import datetime
+import re
+
+def scrape_and_store():
+    # Configure chrome options
+    chrome_options = ChromeOptions()
+    cchrome_options = ChromeOptions()
+    # chrome_options.add_argument("--headless=new")  ← comment this out temporarily
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--ignore-certificate-errors")
+    chrome_options.add_argument("--ignore-ssl-errors")
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+
+    
+    # Create database
+    db = "goodnews.db"
+    conn = sqlite3.connect(db)
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, summary TEXT NOT NULL, img TEXT NOT NULL, date TEXT NOT NULL)")
+    cursor.execute("DELETE FROM news")
+
+    
+    # Set up ChromeDriver Service
+    chrome_service = ChromeService("./chromedriver.exe")
+    driver = webdriver.Chrome(options=chrome_options, service=chrome_service)
+
+
+    # Extract news headlines from goodnews
+    driver.get("https://goodnews.eu/en/")
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "container")))
+    html = driver.page_source
+    content = BeautifulSoup(html, "html.parser")
+    article_page = content.find("div", class_="rp-big-one-content")
+
+    next_page = article_page.find("div", class_="entry-thumb")
+    if next_page:
+        next_page_link = next_page.find("a")["href"]
+        print(f"Link found: {next_page_link}")
+    else:
+        next_page_link = None
+        print("No link found")
+
+    if next_page_link:
+        driver.get(f"{next_page_link}")
+        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "main-wrap")))
+        article_html = driver.page_source
+        print(article_html[:1000]) 
+        article_content = BeautifulSoup(article_html, "html.parser")
+        content_sections = article_content.find_all("article", class_="news_post")
+        for content_section in content_sections:
+            # Find title
+            content_title_tag = content_section.find("h3", class_="news_post_title")
+            if content_title_tag:
+                content_title = content_title_tag.get_text(strip=True)
+                print(f"Title found: {content_title}")
+            else:
+                content_title = None
+                print(f"No title found")
+
+            # Find image
+            content_img_tag = content_section.find("div", class_="news_post_photo")
+            if content_img_tag:
+                style = content_img_tag["style"]
+                img_url = re.search(r'url\((.*?)\)', style)
+                if img_url:
+                    content_img = img_url.group(1)
+                    if content_img.startswith("//"):
+                        content_img = "https:" + content_img
+            else:
+                content_img = None
+                print(f"No image found")
+
+            # Find summary
+            content_summary_tag = content_section.find("p", class_="summary")
+            if content_summary_tag:
+                content_summary = content_summary_tag.get_text(strip=True)
+                print(f"Summary found: {content_summary}")
+            else:
+                content_summary = None
+                print(f"No summary found")
+
+            # Find date
+            date_tag = content_section.find("div", class_="entry-subtitle")
+            if date_tag:
+                raw_time = date_tag.get_text(strip=True)
+                find_number = re.search(r'\d', raw_time)
+                if find_number is None:
+                    only_raw_time = raw_time
+                else:
+                    only_raw_time = raw_time[find_number.start():].strip()
+                print(f"Date: {only_raw_time}")
+            else:
+                only_raw_time = None 
+
+            if only_raw_time:
+                time = datetime.datetime.strptime(only_raw_time, "%d %B %Y").date()
+                print(f"Time found: {time}")
+            else:
+                time = None
+                print(f"No time found")
+
+            if content_title and content_summary and content_img and time:
+                cursor.execute("INSERT INTO news (title, summary, img, date) VALUES (?, ?, ?, ?)", (content_title, content_summary, content_img, str(time)))
+            else:
+                print(f"Skipping incomplete article at {next_page_url}")
+
+
+
+    # Extract news headlines from goodnews
+    driver.get("https://goodnews.eu/en/")
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "container")))
+    html = driver.page_source
+    content = BeautifulSoup(html, "html.parser")
+    articles = content.find_all("article", class_="rp-medium-two")
+    
+    # Test run
+    print(f"Page title: {driver.title}")
+    print(f"Found {len(articles)} articles")
+
+    # Set the date variables
+    today = datetime.date.today()
+    weekstart = today - datetime.timedelta(days=today.weekday())
+    lastweekstart = weekstart - datetime.timedelta(days=7)
+    monthstart = today.replace(day=1)
+
+    # Fill database
+    for article in articles:
+        link_tag = article.find("h3", class_="entry-title").find("a")
+        if link_tag and link_tag["href"]:
+            url = link_tag["href"]
+            print(f"URL: {url}")
+        else:
+            url = None
+
+        date_tag = article.find("h4", class_="entry-subtitle")
+        if date_tag:
+            raw_time = date_tag.get_text(strip=True)
+            find_number = re.search(r'\d', raw_time)
+            if find_number is None:
+                only_raw_time = raw_time
+            else:
+                only_raw_time = raw_time[find_number.start():].strip()
+            print(f"Date: {only_raw_time}")
+        else:
+            only_raw_time = None 
+
+        if only_raw_time:
+            time = datetime.datetime.strptime(only_raw_time, "%d %B %Y").date()
+        else:
+            time = None
+        
+        if lastweekstart <= time <= today:
+            driver.get(url)
+
+            WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "main-wrap")))
             article_html = driver.page_source
             article_content = BeautifulSoup(article_html, "html.parser")
-            container = article_content.find("div", class_="site-content cf")
-            container_sections = container.find_all("article")
+            content_sections = article_content.find_all("article", class_="news_post")
+            for content_section in content_sections:
+                # Find title
+                content_title_tag = content_section.find("h3", class_="news_post_title")
+                if content_title_tag:
+                    content_title = content_title_tag.get_text(strip=True)
+                else:
+                    content_title = None
 
-            for container_section in container_sections:
-                print("[DEBUG] Article HTML:\n", container_section.prettify()[:500])
-                # Title
-                content_title_tag = container_section.find("h3", class_="news_post_title")
-                content_title = content_title_tag.get_text(strip=True) if content_title_tag else None
-                print(f"[DEBUG] Title: {content_title}")
-
-                # Image
-                content_img_tag = container_section.find("div", class_="news_post_photo")
+                # Find image
+                content_img_tag = content_section.find("div", class_="news_post_photo")
                 if content_img_tag:
-                    style = content_img_tag.get("style", "")
-                    img_url_match = re.search(r'url\((.*?)\)', style)
-                    content_img = img_url_match.group(1) if img_url_match else None
-                    if content_img and content_img.startswith("//"):
-                        content_img = "https:" + content_img
+                    style = content_img_tag["style"]
+                    img_url = re.search(r'url\((.*?)\)', style)
+                    if img_url:
+                        content_img = img_url.group(1)
+                        if content_img.startswith("//"):
+                            content_img = "https:" + content_img
                 else:
                     content_img = None
-                print(f"[DEBUG] Image URL: {content_img}")
 
-                # Summary
-                content_summary_tag = container_section.find("p", class_="summary")
-                content_summary = content_summary_tag.get_text(strip=True) if content_summary_tag else None
-                print(f"[DEBUG] Summary: {content_summary}")
+                # Find summary
+                content_summary_tag = content_section.find("p", class_="summary")
+                if content_summary_tag:
+                    content_summary = content_summary_tag.get_text(strip=True)
+                else:
+                    content_summary = None
 
+                if content_title and content_summary and content_img and time:
+                    cursor.execute("INSERT INTO news (title, summary, img, date) VALUES (?, ?, ?, ?)", (content_title, content_summary, content_img, str(time)))
+                else:
+                    print(f"Skipping incomplete article at {url}")
 
+    conn.commit()
 
+    print("Database storage:")
+    stored = cursor.execute("SELECT * FROM news")
+    rows = stored.fetchall()
+    for row in rows:
+        print(row)
+    
+    # Close database    
+    conn.close()
+    driver.quit()
 
-                # === Handle most current article with different structure ===
-                current_article_div = content.find("div", class_="story-content")
-                if current_article_div:
-                    subtitle_link_tag = current_article_div.find("div", class_="entry-subtitle")
-                    if subtitle_link_tag:
-                        a_tag = subtitle_link_tag.find("a", href=True)
-                        if a_tag:
-                            current_link_tag = a_tag["href"]
-                            print(f"URL from subtitle: {current_link_tag}")
-                        else:
-                            current_link_tag = None
-                    else:
-                        current_link_tag = None
-
-                    if not current_link_tag:
-                        h2_title = current_article_div.find("h2", class_="entry-title")
-                        if h2_title:
-                            a_tag = h2_title.find("a", href=True)
-                            if a_tag:
-                                current_link_tag_correct = a_tag["href"]
-                                print(f"URL from title: {current_link_tag_correct}")
-                            else:
-                                current_link_tag = None
-
-                    # Final fallback: if still no URL found, print a warning
-                    if not current_link_tag:
-                        print("Warning: No article URL found in this story-content block.")
-
-                    # Date
-                    date_tag = current_article_div.find("div", class_="entry-subtitle")
-                    if date_tag:
-                        raw_time = date_tag.get_text(strip=True)
-                        print("[DEBUG] Raw date text:", raw_time)
-
-                        # Try to extract the date part (e.g., "15 AUGUST 2025")
-                        match = re.search(r'\d{1,2} \w+ \d{4}', raw_time)
-                        if match:
-                            try:
-                                time = datetime.datetime.strptime(match.group(), "%d %B %Y").date()
-                            except ValueError as e:
-                                print("[ERROR] Date parsing failed:", e)
-                                time = None  # fallback
-                        else:
-                            print("[WARNING] No date match found in:", raw_time)
-                            time = None  # fallback
-                    else:
-                        print("[WARNING] No date container found")
-                        time = None  # fallback
-
-                    if current_link_tag_correct:
-                        # Now visit the article page
-                        driver.get(current_link_tag_correct)
-                        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.ID, "main-wrap")))
-                        
-                        print("[DEBUG] Navigated to:", current_link_tag_correct)
-                        print("[DEBUG] Current URL after load:", driver.current_url)
-
-                        article_html = driver.page_source
-                        print("[DEBUG] Page source length:", len(article_html))
-                        with open("debug_article_page.html", "w", encoding="utf-8") as f:
-                            f.write(article_html)
-                        
-                        article_content = BeautifulSoup(article_html, "html.parser")
-                        container = article_content.find("div", class_="site-content cf")
-                        container_sections = container.find_all("article")
-                        
-
-                        for container_section in container_sections:
-                            print("[DEBUG] Article HTML:\n", container_section.prettify()[:500])
-                            # Title
-                            content_title_tag = container_section.find("h3", class_="news_post_title")
-                            content_title = content_title_tag.get_text(strip=True) if content_title_tag else None
-                            print(f"[DEBUG] Title: {content_title}")
-
-                            # Image
-                            content_img_tag = container_section.find("div", class_="news_post_photo")
-                            if content_img_tag:
-                                style = content_img_tag.get("style", "")
-                                img_url_match = re.search(r'url\((.*?)\)', style)
-                                content_img = img_url_match.group(1) if img_url_match else None
-                                if content_img and content_img.startswith("//"):
-                                    content_img = "https:" + content_img
-                            else:
-                                content_img = None
-                            print(f"[DEBUG] Image URL: {content_img}")
-
-                            # Summary
-                            content_summary_tag = container_section.find("p", class_="summary")
-                            content_summary = content_summary_tag.get_text(strip=True) if content_summary_tag else None
-                            print(f"[DEBUG] Summary: {content_summary}")
-
-                            if content_title and content_summary and content_img:
-                                cursor.execute("INSERT INTO news (title, summary, img, date) VALUES (?, ?, ?, ?)", 
-                                            (content_title, content_summary, content_img, str(time)))
-
-                    else:
-                        print(f"Skipping incomplete article at {url}")
-
-
-                
+if __name__ == "__main__":
+    scrape_and_store()   

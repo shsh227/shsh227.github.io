@@ -7,7 +7,7 @@ app = Flask(__name__)
 def news_scanner():
     conn = sqlite3.connect("goodnews.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT title, summary, img, date FROM news ORDER BY date DESC LIMIT 10")
+    cursor.execute("SELECT title, summary, img, date FROM news ORDER BY date DESC LIMIT 15")
     rows = cursor.fetchall()
     articles = []
     for row in rows:

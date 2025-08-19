@@ -18,16 +18,108 @@ def scrape_and_store():
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--ignore-certificate-errors")
     chrome_options.add_argument("--ignore-ssl-errors")
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
 
+    
+    # Create database
+    db = "goodnews.db"
+    conn = sqlite3.connect(db)
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL UNIQUE, summary TEXT NOT NULL, img TEXT NOT NULL, date TEXT NOT NULL)")
+
+    
     # Set up ChromeDriver Service
     chrome_service = ChromeService("./chromedriver.exe")
     driver = webdriver.Chrome(options=chrome_options, service=chrome_service)
 
+
     # Extract news headlines from goodnews
     driver.get("https://goodnews.eu/en/")
-    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "container")))
+    WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.ID, "container")))
     html = driver.page_source
     content = BeautifulSoup(html, "html.parser")
+    article_page = content.find("div", class_="rp-big-one-content")
+
+    next_page = article_page.find("div", class_="entry-thumb")
+    if next_page:
+        next_page_link = next_page.find("a")["href"]
+        print(f"Link found: {next_page_link}")
+    else:
+        next_page_link = None
+        print("No link found")
+
+    if next_page_link:
+        driver.get(f"{next_page_link}")
+        WebDriverWait(driver, 5).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "news_post")))
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.entry_meta div.date")))
+        article_html = driver.page_source
+        print(article_html[:1000]) 
+        article_content = BeautifulSoup(article_html, "html.parser")
+
+        
+        # Find time
+        date_tag = article_content.select_one("div.entry_meta div.date")
+        if date_tag:
+            raw_date = date_tag.get_text(strip=True)
+            try:
+                time = datetime.datetime.strptime(raw_date, "%d.%m.%Y").strftime("%Y-%m-%d")
+                print(f"Time found: {time}")
+            except ValueError:
+                time = None
+                print("No time found - ValueError")
+        else:
+            time = None
+            print("No time found")
+
+
+
+        content_sections = article_content.find_all("article", class_="news_post")
+        print(f"Found {len(content_sections)} article(s) with class 'news_post'.")
+
+
+        for content_section in content_sections:
+            # Find title
+            content_title_tag = content_section.find("h3", class_="news_post_title")
+            if content_title_tag:
+                content_title = content_title_tag.get_text(strip=True)
+                print(f"Title found: {content_title}")
+            else:
+                content_title = None
+                print(f"No title found")
+
+            # Find image
+            content_img_tag = content_section.find("div", class_="news_post_photo")
+            if content_img_tag:
+                style = content_img_tag["style"]
+                img_url = re.search(r'url\((.*?)\)', style)
+                if img_url:
+                    content_img = img_url.group(1)
+                    if content_img.startswith("//"):
+                        content_img = "https:" + content_img
+            else:
+                content_img = None
+                print(f"No image found")
+
+            # Find summary
+            content_summary_tag = content_section.find("p", class_="summary")
+            if content_summary_tag:
+                content_summary = content_summary_tag.get_text(strip=True)
+                print(f"Summary found: {content_summary}")
+            else:
+                content_summary = None
+                print(f"No summary found")
+
+
+            if content_title and content_summary and content_img and time:
+                cursor.execute("INSERT OR IGNORE INTO news (title, summary, img, date) VALUES (?, ?, ?, ?)", (content_title, content_summary, content_img, str(time)))
+            else:
+                print(f"Skipping incomplete article at {next_page_link}")
+
+
+
+    # Extract older news headlines from goodnews
     articles = content.find_all("article", class_="rp-medium-two")
     
     # Test run
@@ -39,14 +131,6 @@ def scrape_and_store():
     weekstart = today - datetime.timedelta(days=today.weekday())
     lastweekstart = weekstart - datetime.timedelta(days=7)
     monthstart = today.replace(day=1)
-
-    # Create database
-    db = "goodnews.db"
-    conn = sqlite3.connect(db)
-    cursor = conn.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, summary TEXT NOT NULL, img TEXT NOT NULL, date TEXT NOT NULL)")
-    cursor.execute("DELETE FROM news")
-    
 
     # Fill database
     for article in articles:
@@ -74,7 +158,7 @@ def scrape_and_store():
         else:
             time = None
         
-        if lastweekstart <= time <= today:
+        if weekstart <= time <= today:
             driver.get(url)
 
             WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "main-wrap")))
@@ -109,7 +193,7 @@ def scrape_and_store():
                     content_summary = None
 
                 if content_title and content_summary and content_img and time:
-                    cursor.execute("INSERT INTO news (title, summary, img, date) VALUES (?, ?, ?, ?)", (content_title, content_summary, content_img, str(time)))
+                    cursor.execute("INSERT OR IGNORE INTO news (title, summary, img, date) VALUES (?, ?, ?, ?)", (content_title, content_summary, content_img, str(time)))
                 else:
                     print(f"Skipping incomplete article at {url}")
 
@@ -127,3 +211,4 @@ def scrape_and_store():
 
 if __name__ == "__main__":
     scrape_and_store()   
+

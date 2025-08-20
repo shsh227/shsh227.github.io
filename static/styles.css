@@ -148,6 +148,7 @@ footer {
     max-width: 90% !important;
     max-height: none !important;
     margin: 10px auto 10px auto !important;
+    margin-top: 20px !important;
     padding: 20px !important;
     padding-top: 0 !important;
     box-sizing: border-box !important;
@@ -185,13 +186,18 @@ footer {
     display: none;
   }
 
+  #top {
+    padding-top: 60px;
+    background-color: rgb(75, 117, 255);
+  }
+
   #disclaimer {
     word-break: break-word;
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 10px;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    padding: 5px;
     z-index: 1002;
   }
 

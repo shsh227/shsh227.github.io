@@ -156,7 +156,6 @@ footer {
     max-height: none !important;
     margin: 10px auto 10px auto !important;
     padding: 20px !important;
-    padding-top: 0 !important;
     box-sizing: border-box !important;
   }
 
@@ -188,16 +187,12 @@ footer {
     height: 100vh !important;
   }
 
-  #top {
-    display: none;
-  }
-
   #disclaimer {
     word-break: break-word;
     top: 5px;
     left: 5px;
     right: 5px;
-    padding: 5px;
+    padding: 5px !important;
   }
 
   #fullscreen,

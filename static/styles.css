@@ -186,6 +186,7 @@ footer {
 
   #disclaimer {
     word-break: break-word;
+    margin-top: 0;
   }
 
   #fullscreen,

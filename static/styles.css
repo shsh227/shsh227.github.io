@@ -140,10 +140,6 @@ footer {
     z-index: 1000;
 }
 
-#disclaimer {
-  position: fixed;
-}
-
 
 @media (max-width: 768px) {
   .article-box {
@@ -191,6 +187,7 @@ footer {
 
   #disclaimer {
     word-break: break-word;
+    position: fixed;
   }
 
   #fullscreen,

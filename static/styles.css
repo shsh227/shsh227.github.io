@@ -199,4 +199,8 @@ footer {
   #exitfullscreen {
     display: none !important;
   }
+
+  #distance {
+    display: none !important;
+  }
 }

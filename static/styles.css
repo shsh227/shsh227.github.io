@@ -10,7 +10,7 @@ html, body {
 #fullscreen,
 #exitfullscreen {
     position: fixed;
-    top: 10px;
+    top: 35px;
     right: 10px;
     padding: 10px 20px;
     background-color: rgb(75, 117, 255);
@@ -119,10 +119,10 @@ a {
 
 #logo {
     position: fixed;
-    top: 0px;
+    top: 35px;
     left: 0px;
-    width: 320px;
-    height: 96px;
+    width: 240px;
+    height: 70px;
     z-index: 1001;
 }
 
@@ -183,5 +183,9 @@ footer {
 
   #top {
     display: none;
+  }
+
+  #disclaimer {
+    word-break: break-word;
   }
 }

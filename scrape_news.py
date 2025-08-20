@@ -158,7 +158,7 @@ def scrape_and_store():
         else:
             time = None
         
-        if weekstart <= time <= today:
+        if lastweekstart <= time <= today:
             driver.get(url)
 
             WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "main-wrap")))

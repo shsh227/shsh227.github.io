@@ -200,7 +200,7 @@ footer {
     display: none !important;
   }
 
-  #distance {
+  .distance {
     display: none !important;
   }
 }

@@ -166,8 +166,7 @@ footer {
   }
 
   #logo {
-    width: 200px !important;
-    height: 60px !important;
+    display: none !important;
   }
 
   footer {
@@ -187,5 +186,10 @@ footer {
 
   #disclaimer {
     word-break: break-word;
+  }
+
+  #fullscreen,
+  #exitfullscreen {
+    display: none !important;
   }
 }

@@ -141,6 +141,13 @@ footer {
 }
 
 
+ #disclaimer {
+    background-color: rgb(75, 117, 255);
+    color: red;
+    padding: 9px;
+ } 
+
+
 @media (max-width: 768px) {
   .article-box {
     flex-direction: column !important;
@@ -181,13 +188,8 @@ footer {
     height: 100vh !important;
   }
 
-  #top > *:not(#disclaimer) {
-    display: none;
-  }
-
   #top {
-    padding-top: 60px;
-    background-color: rgb(75, 117, 255);
+    display: none;
   }
 
   #disclaimer {

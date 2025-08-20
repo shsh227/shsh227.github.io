@@ -181,7 +181,7 @@ footer {
     height: 100vh !important;
   }
 
-  #top {
+  #top:not(#disclaimer) {
     display: none;
   }
 

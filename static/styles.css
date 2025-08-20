@@ -140,6 +140,10 @@ footer {
     z-index: 1000;
 }
 
+#disclaimer {
+  position: fixed;
+}
+
 
 @media (max-width: 768px) {
   .article-box {
@@ -149,6 +153,7 @@ footer {
     max-height: none !important;
     margin: 10px auto 10px auto !important;
     padding: 20px !important;
+    padding-top: 0 !important;
     box-sizing: border-box !important;
   }
 
@@ -186,7 +191,6 @@ footer {
 
   #disclaimer {
     word-break: break-word;
-    margin-top: 0;
   }
 
   #fullscreen,
